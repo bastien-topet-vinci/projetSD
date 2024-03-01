@@ -26,6 +26,7 @@ public class Graph {
         if (ville.length >= 4) {
           City city = new City(Integer.parseInt(ville[0]), ville[1],  Double.parseDouble(ville[2]),  Double.parseDouble(ville[3]));
           trajetVilleRoute.put(city.getNom(), new HashSet<Road>());
+          nbVilles++;
         }
       }
     } catch (Exception e) {
