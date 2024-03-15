@@ -13,6 +13,8 @@ public class Graph {
   private Map<Integer, Set<Road>> trajetVilleRoute;
   private static int nbVilles = 0;
 
+  private static int nbRoutes = 0;
+
   public Graph(File cities, File roads) {
     this.cities = cities;
     this.roads = roads;
@@ -40,6 +42,7 @@ public class Graph {
         if (road.length >= 2) {
           Road road1 = new Road(Integer.parseInt(road[0]), Integer.parseInt(road[1]));
           trajetVilleRoute.get(road1.getNumVille1()).add(road1);
+          nbRoutes++;
         }
       }
     } catch (Exception e) {
@@ -52,6 +55,7 @@ public class Graph {
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String ville1, String ville2) {
+
 
   }
 
