@@ -9,10 +9,9 @@ public class Graph {
   private HashMap<City, Set<Road>> trajetVilleRoute;
   private HashMap<Integer, City> numVille;
   private HashMap<City, Integer> villeNum;
+  private Queue<String> queue;
+  private Map<String, String> villeVisitees;
   private static int nbVilles = 0;
-
-
-
   private static int nbRoutes = 0;
 
   public Graph(File cities, File roads) {
@@ -20,8 +19,9 @@ public class Graph {
     this.roads = roads;
     numVille = new HashMap<Integer, City>();
     villeNum = new HashMap<City, Integer>();
-
+    queue = new LinkedList<>();
     trajetVilleRoute = new HashMap<City, Set<Road>>();
+    villeVisitees = new HashMap<>();
 
     try {
       BufferedReader lecteur = new BufferedReader(new FileReader(cities));
@@ -30,8 +30,8 @@ public class Graph {
         String[] ville = ligne.split(",");
         if (ville.length >= 4) {
           City city = new City(Integer.parseInt(ville[0]), ville[1],  Double.parseDouble(ville[2]),  Double.parseDouble(ville[3]));
-            numVille.put(Integer.parseInt(ville[0]), city);
-            villeNum.put(city, Integer.parseInt(ville[0]));
+          numVille.put(Integer.parseInt(ville[0]), city);
+          villeNum.put(city, Integer.parseInt(ville[0]));
           trajetVilleRoute.put(city, new HashSet<Road>());
           nbVilles++;
         }
@@ -52,40 +52,38 @@ public class Graph {
     } catch (Exception e) {
       throw  new RuntimeException("Erreur lors de la lecture du fichier roads.txt");
     }
-
-
-
-
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String ville1, String ville2) {
-    Map<String, String> predecessor = new HashMap<>();
-    Queue<String> queue = new LinkedList<>();
+    Map<String, String> villeVisitees = new HashMap<>();
     queue.add(ville1);
-    predecessor.put(ville1, null);
+    villeVisitees.put(ville1, null);
 
     while (!queue.isEmpty()) {
-      // Dequeue a city from queue
-      String currentCity = queue.poll();
-
-      // If this city is the destination, we have found the shortest path
+      String currentCityName = queue.poll();
+      City currentCity = null;
+      for (City city : trajetVilleRoute.keySet()) {
+        if (city.getNom().equals(currentCityName)){
+          currentCity = city;
+        }
+      }
       if (currentCity.equals(ville2)) {
-        printPath(predecessor, ville1, ville2);
+        printPath(villeVisitees, ville1, ville2);
         return;
       }
-
-      // Get all adjacent cities of the dequeued city
-      // If an adjacent city has not been visited, then mark it visited and enqueue it
       for (Road road : trajetVilleRoute.get(currentCity)) {
         String adjacentCity = road.getNumVille2().getNom();
-        if (!predecessor.containsKey(adjacentCity)) {
+        if (!villeVisitees.containsKey(adjacentCity)) {
           queue.add(adjacentCity);
-          predecessor.put(adjacentCity, currentCity);
+          villeVisitees.put(adjacentCity, currentCity.getNom());
         }
       }
     }
   }
 
+  public void calculerItineraireMinimisantKm(String ville1, String ville2) {
+
+  }
   private void printPath(Map<String, String> predecessor, String start, String end) {
     if (start.equals(end)) {
       System.out.print(start);
@@ -95,14 +93,4 @@ public class Graph {
     }
   }
 
-
-
-
-
-
-
-
-  public void calculerItineraireMinimisantKm(String ville1, String ville2) {
-
-  }
 }
