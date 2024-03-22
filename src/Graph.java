@@ -45,7 +45,8 @@ public class Graph {
       while ((ligne = lecteur.readLine()) != null) {
         String[] road = ligne.split(",");
         if (road.length >= 2) {
-          Road route =new Road(numVille.get(Integer.parseInt(road[0])) , numVille.get(Integer.parseInt(road[1])));
+
+          Road route =new Road(numVille.get(Integer.parseInt(road[0])), numVille.get(Integer.parseInt(road[1])));
           trajetVilleRoute.get(numVille.get(Integer.parseInt(road[0]))).add(route);
         }
       }
@@ -97,26 +98,31 @@ public class Graph {
       System.out.println("Pas de chemin trouvé");
     }
   }
-  //printPath
     private void printPath(Map<City, Road> predecessor, String ville1, String ville2) {
-        LinkedList<City> path = new LinkedList<>();
-        City end = numVille.get(villeNum.get(ville2));
-        City start = numVille.get(villeNum.get(ville1));
-        City current = end;
-        while (current != null && !current.equals(start)) {
-        path.addFirst(current);
-        current = predecessor.get(current).getNumVille1();
+        City end = null;
+        City start = null;
+        for (City city : numVille.values()) {
+            if (city.getNom().equals(ville1)) {
+                start = city;
+            }
+            if (city.getNom().equals(ville2)) {
+                end = city;
+            }
         }
-        if (current != null) {
-        path.addFirst(current);
+        Deque<Road> chemin = new LinkedList<>();
+        int total = 0;
+        double distance = 0;
+        while(end != start) {
+            Road route = predecessor.get(end);
+            chemin.add(route);
+            total++;
+            distance += route.getDistance();
+            end = route.getNumVille1();
         }
-        if (path.size() > 0) {
-        System.out.println("Itinéraire minimisant le nombre de routes entre " + ville1 + " et " + ville2 + ":");
-        for (City city : path) {
-            System.out.println(city.getNom());
-        }
-        } else {
-        System.out.println("Pas de chemin trouvé");
+      System.out.println("trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
+        while (!chemin.isEmpty()) {
+            Road route = chemin.poll();
+            System.out.println(route.getNumVille1().getNom() + " -> " + route.getNumVille2().getNom() + " : " + route.getDistance() + " km");
         }
     }
 
