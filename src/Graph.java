@@ -56,7 +56,6 @@ public class Graph {
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String ville1, String ville2) {
-    System.out.println(ville1 + " -> " + ville2);
     City start = null;
     City end = null;
     for (City city : numVille.values()) {
@@ -71,10 +70,10 @@ public class Graph {
       throw new RuntimeException("Ville non trouvée");
     }
 
-    Deque<City>  endroitavisiter = new LinkedList<>();
-    Set<City>  endroitvisite = new HashSet<>();
-    Map<City, Road>  predecessor = new HashMap<>();
+    Deque<City> endroitavisiter = new LinkedList<>();
     endroitavisiter.add(start);
+    Map<City, Road>  predecessor = new HashMap<>();
+    Set<City>  endroitvisite = new HashSet<>();
     boolean trouve = false;
     while (!endroitavisiter.isEmpty()) {
       City current = endroitavisiter.poll();
@@ -112,16 +111,19 @@ public class Graph {
         Deque<Road> chemin = new LinkedList<>();
         int total = 0;
         double distance = 0;
-        while(end != start) {
-            Road route = predecessor.get(end);
+        City current = end;
+        while (predecessor.get(current) != null) {
+            Road route = predecessor.get(current);
             chemin.add(route);
             total++;
             distance += route.getDistance();
-            end = route.getNumVille1();
+            current = route.getNumVille1();
         }
+
+
       System.out.println("trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
         while (!chemin.isEmpty()) {
-            Road route = chemin.poll();
+            Road route = chemin.pollLast();
             System.out.println(route.getNumVille1().getNom() + " -> " + route.getNumVille2().getNom() + " : " + route.getDistance() + " km");
         }
     }
