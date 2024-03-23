@@ -6,6 +6,7 @@ import java.util.*;
 public class Graph {
   private File cities;
   private File roads;
+
   private HashMap<City, Set<Road>> trajetVilleRoute;
   private HashMap<Integer, City> numVille;
   private HashMap<City, Integer> villeNum;
@@ -44,10 +45,19 @@ public class Graph {
       String ligne;
       while ((ligne = lecteur.readLine()) != null) {
         String[] road = ligne.split(",");
-        if (road.length >= 2) {
 
-          Road route =new Road(numVille.get(Integer.parseInt(road[0])), numVille.get(Integer.parseInt(road[1])));
-          trajetVilleRoute.get(numVille.get(Integer.parseInt(road[0]))).add(route);
+        if (road.length >= 2) {
+            City city1 = numVille.get(Integer.parseInt(road[0]));
+            City city2 = numVille.get(Integer.parseInt(road[1]));
+            Road route = new Road(city1, city2);
+            Set<Road> r = trajetVilleRoute.get(city1);
+            r.add(route);
+            trajetVilleRoute.put(city1, r);
+            Road route2 = new Road(city2, city1);
+            Set<Road> r2 = trajetVilleRoute.get(city2);
+            r2.add(route2);
+            trajetVilleRoute.put(city2, r2);
+
         }
       }
     } catch (Exception e) {
@@ -56,6 +66,7 @@ public class Graph {
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String ville1, String ville2) {
+      // on recupere les villess
     City start = null;
     City end = null;
     for (City city : numVille.values()) {
@@ -112,7 +123,7 @@ public class Graph {
         int total = 0;
         double distance = 0;
         City current = end;
-        while (predecessor.get(current) != null) {
+        while (current != start) {
             Road route = predecessor.get(current);
             chemin.add(route);
             total++;
