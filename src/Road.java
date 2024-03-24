@@ -15,9 +15,6 @@ public class Road {
   public City getNumVille1() {
     return nomVille1;
   }
-  public void setDistance(double distance) {
-    this.distance = distance;
-  }
 
   public double calculateDistance(City city1, City city2) {
     City cityObj1 =city1;
