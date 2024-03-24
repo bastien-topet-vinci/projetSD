@@ -134,19 +134,16 @@ public class Graph {
       throw new RuntimeException("Ville non trouvée");
     }
 
-    // Initialisation des structures de données pour l'algorithme de Dijkstra
     Map<City, Double> distances = new HashMap<>();
     Map<City, Road> precedent = new HashMap<>();
     TreeMap<Double, City> queue = new TreeMap<>();
     Set<City> visited = new HashSet<>();
 
-    // Initialisation des distances à l'infini sauf pour la ville de départ
     for (City city : numVille.values()) {
       distances.put(city, city.equals(debut) ? 0.0 : Double.MAX_VALUE);
       queue.put(distances.get(city), city);
     }
 
-    // Algorithme de Dijkstra
     while (!queue.isEmpty()) {
       City sommetCourant = queue.pollFirstEntry().getValue();
       visited.add(sommetCourant);
@@ -163,7 +160,6 @@ public class Graph {
         }
       }
     }
-    // Affichage du chemin le plus court
     printShortestPath(precedent, debut, fin);
   }
 
@@ -171,7 +167,6 @@ public class Graph {
     Deque<Road> path = new LinkedList<>();
     City current = end;
 
-    // Reconstitution du chemin en partant de la ville d'arrivée
     while (precedent.containsKey(current)) {
       Road road = precedent.get(current);
       path.addFirst(road);
@@ -189,7 +184,6 @@ public class Graph {
       current = route.getNumVille1();
     }
 
-    // Affichage du chemin et de la distance totale
     double totalDistance = 0.0;
     System.out.println("Trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
     while (!path.isEmpty()) {
@@ -200,7 +194,6 @@ public class Graph {
     System.out.println("Distance totale : " + totalDistance + " km");
   }
   private City getCity (String ville1){
-    // Trouver les villes de départ et d'arrivée
     for (City city : numVille.values()) {
       if (city.getNom().equals(ville1)) {
         return city;
