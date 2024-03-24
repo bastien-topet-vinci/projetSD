@@ -6,7 +6,7 @@ public class Main {
 		File roads = new File("roads.txt");
 		Graph graph = new Graph(cities, roads);
 		graph.calculerItineraireMinimisantNombreRoutes("Berlin", "Madrid" );
-		System.out.println("--------------------------");
+		System.out.println("-----------------------------------------------------------");
 		graph.calculerItineraireMinimisantKm("Berlin", "Madrid");
 	}
 
