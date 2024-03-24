@@ -4,8 +4,8 @@ import java.io.FileReader;
 import java.util.*;
 
 public class Graph {
-  private File cities;
-  private File roads;
+  private File villes;
+  private File routes;
 
   private HashMap<City, Set<Road>> trajetVilleRoute;
   private HashMap<Integer, City> numVille;
@@ -15,9 +15,9 @@ public class Graph {
   private static int nbVilles = 0;
   private static int nbRoutes = 0;
 
-  public Graph(File cities, File roads) {
-    this.cities = cities;
-    this.roads = roads;
+  public Graph(File villes, File routes) {
+    this.villes = villes;
+    this.routes = routes;
     numVille = new HashMap<Integer, City>();
     villeNum = new HashMap<City, Integer>();
     queue = new LinkedList<>();
@@ -25,7 +25,7 @@ public class Graph {
     villeVisitees = new HashMap<>();
 
     try {
-      BufferedReader lecteur = new BufferedReader(new FileReader(cities));
+      BufferedReader lecteur = new BufferedReader(new FileReader(villes));
       String ligne;
       while ((ligne = lecteur.readLine()) != null) {
         String[] ville = ligne.split(",");
@@ -41,22 +41,22 @@ public class Graph {
       e.printStackTrace();
     }
     try {
-      BufferedReader lecteur = new BufferedReader(new FileReader(roads));
+      BufferedReader lecteur = new BufferedReader(new FileReader(routes));
       String ligne;
       while ((ligne = lecteur.readLine()) != null) {
         String[] road = ligne.split(",");
 
         if (road.length >= 2) {
-            City city1 = numVille.get(Integer.parseInt(road[0]));
-            City city2 = numVille.get(Integer.parseInt(road[1]));
-            Road route = new Road(city1, city2);
-            Set<Road> r = trajetVilleRoute.get(city1);
-            r.add(route);
-            trajetVilleRoute.put(city1, r);
-            Road route2 = new Road(city2, city1);
-            Set<Road> r2 = trajetVilleRoute.get(city2);
-            r2.add(route2);
-            trajetVilleRoute.put(city2, r2);
+          City city1 = numVille.get(Integer.parseInt(road[0]));
+          City city2 = numVille.get(Integer.parseInt(road[1]));
+          Road route = new Road(city1, city2);
+          Set<Road> r = trajetVilleRoute.get(city1);
+          r.add(route);
+          trajetVilleRoute.put(city1, r);
+          Road route2 = new Road(city2, city1);
+          Set<Road> r2 = trajetVilleRoute.get(city2);
+          r2.add(route2);
+          trajetVilleRoute.put(city2, r2);
 
         }
       }
@@ -66,28 +66,22 @@ public class Graph {
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String ville1, String ville2) {
-      // on recupere les villess
-    City start = null;
-    City end = null;
-    for (City city : numVille.values()) {
-      if(city.getNom().equals(ville1)) {
-        start = city;
-      }
-      if(city.getNom().equals(ville2)) {
-         end = city;
-      }
-    }
+    City end;
+    City start;
+    start = getCity(ville1);
+    end = getCity(ville2);
+
     if (start == null || end == null) {
       throw new RuntimeException("Ville non trouvée");
     }
 
-    Deque<City> endroitavisiter = new LinkedList<>();
-    endroitavisiter.add(start);
-    Map<City, Road>  predecessor = new HashMap<>();
-    Set<City>  endroitvisite = new HashSet<>();
+    Deque<City> endroitAVisiter = new LinkedList<>();
+    endroitAVisiter.add(start);
+    Map<City, Road>  precedent = new HashMap<>();
+    Set<City>  endroitVisite = new HashSet<>();
     boolean trouve = false;
-    while (!endroitavisiter.isEmpty()) {
-      City current = endroitavisiter.poll();
+    while (!endroitAVisiter.isEmpty()) {
+      City current = endroitAVisiter.poll();
       if (current.equals(end)) {
         trouve = true;
         break;
@@ -95,137 +89,124 @@ public class Graph {
       Set<Road> routes = this.trajetVilleRoute.get(current);
       for (Road route : routes) {
         City destination = route.getNumVille2();
-        if (!endroitvisite.contains(destination)) {
-          endroitavisiter.add(destination);
-          endroitvisite.add(destination);
-          predecessor.put(destination, route);
+        if (!endroitVisite.contains(destination)) {
+          endroitAVisiter.add(destination);
+          endroitVisite.add(destination);
+          precedent.put(destination, route);
         }
       }
     }
     if (trouve) {
-      printPath(predecessor, ville1, ville2);
+      printPath(precedent, ville1, ville2);
     } else {
       System.out.println("Pas de chemin trouvé");
     }
   }
-    private void printPath(Map<City, Road> predecessor, String ville1, String ville2) {
-        City end = null;
-        City start = null;
-        for (City city : numVille.values()) {
-            if (city.getNom().equals(ville1)) {
-                start = city;
-            }
-            if (city.getNom().equals(ville2)) {
-                end = city;
-            }
-        }
-        Deque<Road> chemin = new LinkedList<>();
-        int total = 0;
-        double distance = 0;
-        City current = end;
-        while (current != start) {
-            Road route = predecessor.get(current);
-            chemin.add(route);
-            total++;
-            distance += route.getDistance();
-            current = route.getNumVille1();
-        }
-
-
-      System.out.println("Trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
-        while (!chemin.isEmpty()) {
-            Road route = chemin.pollLast();
-            System.out.println(route.getNumVille1().getNom() + " -> " + route.getNumVille2().getNom() + " : " + route.getDistance() + " km");
-        }
+  private void printPath(Map<City, Road> precedent, String ville1, String ville2) {
+    City end;
+    City start;
+    start = getCity(ville1);
+    end = getCity(ville2);
+    Deque<Road> chemin = new LinkedList<>();
+    int total = 0;
+    double distance = 0;
+    City current = end;
+    while (current != start) {
+      Road route = precedent.get(current);
+      chemin.add(route);
+      total++;
+      distance += route.getDistance();
+      current = route.getNumVille1();
     }
-
-
-
-
-  public void calculerItineraireMinimisantKm(String ville1, String ville2) {
-
-      City start = null;
-      City end = null;
-
-      // Trouver les villes de départ et d'arrivée
-      for (City city : numVille.values()) {
-          if(city.getNom().equals(ville1)) {
-              start = city;
-          }
-          if(city.getNom().equals(ville2)) {
-              end = city;
-          }
-      }
-      if (start == null || end == null) {
-          throw new RuntimeException("Ville non trouvée");
-      }
-
-      // Initialisation des structures de données pour l'algorithme de Dijkstra
-      Map<City, Double> distances = new HashMap<>();
-      Map<City, Road> predecessor = new HashMap<>();
-      PriorityQueue<City> queue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-      Set<City> visited = new HashSet<>();
-
-      // Initialisation des distances à l'infini sauf pour la ville de départ
-      for (City city : numVille.values()) {
-          distances.put(city, city.equals(start) ? 0.0 : Double.MAX_VALUE);
-          queue.offer(city);
-      }
-
-      // Algorithme de Dijkstra
-      while (!queue.isEmpty()) {
-          City current = queue.poll();
-          visited.add(current);
-          Set<Road> roads = trajetVilleRoute.get(current);
-          for (Road road : roads) {
-              City neighbor = road.getNumVille2();
-              if (!visited.contains(neighbor)) {
-                  double newDistance = distances.get(current) + road.getDistance();
-                  if (newDistance < distances.get(neighbor)) {
-                      distances.put(neighbor, newDistance);
-                      predecessor.put(neighbor, road);
-                      queue.remove(neighbor);
-                      queue.offer(neighbor);
-                  }
-              }
-          }
-      }
-
-      // Affichage du chemin le plus court
-      printShortestPath(predecessor, start, end);
+    System.out.println("Trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
+    while (!chemin.isEmpty()) {
+      Road route = chemin.pollLast();
+      System.out.println(route.getNumVille1().getNom() + " -> " + route.getNumVille2().getNom() + " : " + route.getDistance() + " km");
+    }
   }
 
-    private void printShortestPath(Map<City, Road> predecessor, City start, City end) {
-        Deque<Road> path = new LinkedList<>();
-        City current = end;
+  public void calculerItineraireMinimisantKm(String ville1, String ville2) {
+    City debut;
+    City fin;
+    debut = getCity(ville1);
+    fin = getCity(ville2);
+    if (debut == null || fin == null) {
+      throw new RuntimeException("Ville non trouvée");
+    }
 
-        // Reconstitution du chemin en partant de la ville d'arrivée
-        while (predecessor.containsKey(current)) {
-            Road road = predecessor.get(current);
-            path.addFirst(road);
-            current = road.getNumVille1();
-        }
-        Deque<Road> chemin = new LinkedList<>();
-        int total = 0;
-        double distance = 0;
-         current = end;
-        while (current != start) {
-            Road route = predecessor.get(current);
-            chemin.add(route);
-            total++;
-            distance += route.getDistance();
-            current = route.getNumVille1();
-        }
+    // Initialisation des structures de données pour l'algorithme de Dijkstra
+    Map<City, Double> distances = new HashMap<>();
+    Map<City, Road> precedent = new HashMap<>();
+    TreeMap<Double, City> queue = new TreeMap<>();
+    Set<City> visited = new HashSet<>();
 
-        // Affichage du chemin et de la distance totale
-        double totalDistance = 0.0;
-        System.out.println("Trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
-        while (!path.isEmpty()) {
-            Road road = path.poll();
-            System.out.println(road.getNumVille1().getNom() + " -> " + road.getNumVille2().getNom() + " : " + road.getDistance() + " km");
-            totalDistance += road.getDistance();
+    // Initialisation des distances à l'infini sauf pour la ville de départ
+    for (City city : numVille.values()) {
+      distances.put(city, city.equals(debut) ? 0.0 : Double.MAX_VALUE);
+      queue.put(distances.get(city), city);
+    }
+
+    // Algorithme de Dijkstra
+    while (!queue.isEmpty()) {
+      City sommetCourant = queue.pollFirstEntry().getValue();
+      visited.add(sommetCourant);
+      Set<Road> roads = trajetVilleRoute.get(sommetCourant);
+      for (Road road : roads) {
+        City adjacent = road.getNumVille2();
+        if (!visited.contains(adjacent)) {
+          double newDistance = distances.get(sommetCourant) + road.getDistance();
+          if (newDistance < distances.get(adjacent)) {
+            distances.put(adjacent, newDistance);
+            precedent.put(adjacent, road);
+            queue.put(newDistance, adjacent);
+          }
         }
-        System.out.println("Distance totale : " + totalDistance + " km");
+      }
+    }
+    // Affichage du chemin le plus court
+    printShortestPath(precedent, debut, fin);
+  }
+
+  private void printShortestPath(Map<City, Road> precedent, City start, City end) {
+    Deque<Road> path = new LinkedList<>();
+    City current = end;
+
+    // Reconstitution du chemin en partant de la ville d'arrivée
+    while (precedent.containsKey(current)) {
+      Road road = precedent.get(current);
+      path.addFirst(road);
+      current = road.getNumVille1();
+    }
+    Deque<Road> chemin = new LinkedList<>();
+    int total = 0;
+    double distance = 0;
+    current = end;
+    while (current != start) {
+      Road route = precedent.get(current);
+      chemin.add(route);
+      total++;
+      distance += route.getDistance();
+      current = route.getNumVille1();
+    }
+
+    // Affichage du chemin et de la distance totale
+    double totalDistance = 0.0;
+    System.out.println("Trajet de " +start.getNom() + " à " + end.getNom() + " : " + total + " routes, " + distance + " km");
+    while (!path.isEmpty()) {
+      Road road = path.poll();
+      System.out.println(road.getNumVille1().getNom() + " -> " + road.getNumVille2().getNom() + " : " + road.getDistance() + " km");
+      totalDistance += road.getDistance();
+    }
+    System.out.println("Distance totale : " + totalDistance + " km");
+  }
+  private City getCity (String ville1){
+    // Trouver les villes de départ et d'arrivée
+    for (City city : numVille.values()) {
+      if (city.getNom().equals(ville1)) {
+        return city;
+      }
+    }
+    return null;
   }
 
 
